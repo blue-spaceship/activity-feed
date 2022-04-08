@@ -1,12 +1,12 @@
 {
-  "name": "rocket-feed",
+  "name": "@blue-spaceship/rocket-feed",
   "version": "0.1.0",
   "repository": "git://github.com/blue-spaceship/rocket-feed.git",
   "main": "index.js",
-  "author": "",
+  "author": "walmeidaw",
   "license": "MIT",
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
+    "@blue-spaceship:registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
     "mongoose": "^6.2.9",
