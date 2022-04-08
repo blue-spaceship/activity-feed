@@ -1,7 +1,7 @@
 {
   "name": "rocket-feed",
   "version": "0.1.0",
-  "private": true,
+  "repository": "git://github.com/blue-spaceship/rocket-feed.git",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,5 +11,8 @@
   "dependencies": {
     "mongoose": "^6.2.9",
     "redis": "^4.0.5"
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   }
 }
