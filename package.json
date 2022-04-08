@@ -2,17 +2,14 @@
   "name": "rocket-feed",
   "version": "0.1.0",
   "repository": "git://github.com/blue-spaceship/rocket-feed.git",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "main": "index.js",
+  "author": "",
+  "license": "MIT",
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   },
   "dependencies": {
     "mongoose": "^6.2.9",
     "redis": "^4.0.5"
-  },
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
   }
 }
