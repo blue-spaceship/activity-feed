@@ -1,8 +1,8 @@
 'use strict';
 
-const { Feed, Activity } = require('./models/activity/index');
+const Models = require('./models/activity');
 
-module.exports = { Feed, Activity }
-module.exports = { Feed, Activity };
-module.exports.default = { Feed, Activity };
-module.exports.models = { Feed, Activity };
+module.exports = {
+    Feed : Models.Feed,
+    Activity : Models.Activity
+};

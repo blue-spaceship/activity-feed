@@ -1,10 +1,21 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
+const { createClient } = require('redis')
+var Schema = mongoose.Schema;
 
-import Redis from '../../lib/redis'
+function requiredData(prop){
+    console.trace(`${prop} is required`)
+    throw new Error(`${ prop } is required`)
+}
 
-import { requiredData } from '/utils/controler'
+async function Redis(){
+    const client = createClient({
+        url: process.env.REDIS_URL,
+        password: process.env.REDIS_PASSWORD
+    })
 
-var Schema = mongoose.Schema
+    await client.connect()
+    return client
+}
 
 var activity_schema = new Schema({
     actor: { type: String, required: true },
@@ -75,7 +86,7 @@ const FeedModel = mongoose.models.Feed || mongoose.model('Feed', feed_schema)
 const ActivityFeedModel = mongoose.models.ActivityFeed || mongoose.model('ActivityFeed', activity_feed_schema)
 const FollowModel = mongoose.models.Follow || mongoose.model('Follow', follow_schema)
 
-export class Feed extends FeedModel{
+class Feed extends FeedModel{
     static async createFeed(id = requiredData('feed id'), baseModel = requiredData('base model'), group){
         const bucket = []
 
@@ -150,7 +161,7 @@ export class Feed extends FeedModel{
     }
 }
 
-export class Activity extends ActivityModel{
+class Activity extends ActivityModel{
     constructor({
             actor = requiredData('actor'),
             actorModel = requiredData('actorModel'),
@@ -227,3 +238,6 @@ export class Activity extends ActivityModel{
         await Promise.all( promisses )
     }
 }
+
+exports.Feed = Feed
+exports.Activity = Activity
