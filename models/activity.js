@@ -67,9 +67,12 @@ var activity_feed_schema = new Schema({
     },
     source: {
         type: String,
+        required: true,
         ref: 'Feed'
     }
 });
+
+activity_feed_schema.index( { feed: 1, activity: 1, source: 1 }, { unique: true } )
 
 var follow_schema = new Schema({
     source: { type: String, ref: 'Feed', required: true },
@@ -153,7 +156,6 @@ class Feed extends FeedModel{
         if(unfollowed){
             const redis = await Redis()
             await redis.sRem(`${source}:followers`, target).catch( err => false )
-            // Target is who unfollows, soruce is who is being unfollowed
             const stream = new Activity({ actor: target, actorModel: targetModel, verb: 'unfollow', target: source, targetModel: sourceModel })
             await stream.post(target, { extra: [ source ] })
             await redis.disconnect()
@@ -209,13 +211,16 @@ class Activity extends ActivityModel{
         let idSet = []
         const bucket = []
 
+        // Post on original feed the post
         bucket.push({ insertOne:{ document:{ feed: id, activity: this._id, source: id } } })
 
+        // if replicate for followers, get list of followers
         if(replication){
             const feed = await Feed.getFeed(id, { followers: true })
             idSet.push(...feed.followers)
         }
 
+        // if have extra feed ids, add to set
         if( extra ){
             if(Array.isArray(extra)){
                 idSet.push(...extra)
@@ -224,16 +229,29 @@ class Activity extends ActivityModel{
             }
         }
 
-        const replicationItems = idSet.map( target => { return { insertOne: { document : { feed : target, activity: this._id, source: id } } } } )
-        bucket.push(...replicationItems)
-        
-        await ActivityFeedModel.bulkWrite(bucket)
+        // if have an target feed id, add to set
+        if(this.target){
+            idSet.push(this.target)
+        }
 
-        idSet.push(id)
+        // if have an source feed id, add to set
+        if(this.source){
+            idSet.push(this.source)
+        }
 
+        // cast to unique set
         idSet = [...new Set(idSet)]
 
+        // for each id in set, add to bucket and save on database
+        const replicationItems = idSet.map( target => { return { insertOne: { document : { feed : target, activity: this._id, source: id } } } } )
+        bucket.push(...replicationItems)
+        await ActivityFeedModel.bulkWrite(bucket)
+
+        // put origin feed id on set after generate replication items
+        idSet.push(id)
+        
         const redis = await Redis()
+        // for each id in set, copy activity for your activity feed
         const promisses = idSet.map( target => redis.xAdd( `${target}:activities`, '*', this.getData() ) )
         await Promise.all( promisses )
     }
