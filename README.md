@@ -1,5 +1,5 @@
 
-# rocket feed 
+# Activity feed 
 
 Configurar as seguintes variáveis ambiente
 ```
